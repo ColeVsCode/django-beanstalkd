@@ -41,6 +41,8 @@ class BeanstalkClient(object):
         """
         self._beanstalk.use(func)
         self._beanstalk.put(str(arg), priority=priority, delay=delay, ttr=ttr)
+    def close(self):
+        self._beanstalk.close()
 
     def __init__(self, **kwargs):
         self._beanstalk = connect_beanstalkd()
