@@ -29,7 +29,7 @@ class BeanstalkError(Exception):
 class BeanstalkClient(object):
     """beanstalk client, automatically connecting to server"""
 
-    def call(self, func, arg='', priority=DEFAULT_PRIORITY, delay=0, ttr=DEFAULT_TTR):
+    def call(self, func=None, arg='', priority=DEFAULT_PRIORITY, delay=0, ttr=DEFAULT_TTR, appname=None, jobname=None):
         """
         Calls the specified function (in beanstalk terms: put the specified arg
         in tube func)
@@ -39,6 +39,16 @@ class BeanstalkClient(object):
         delay: how many seconds to wait before the job can be reserved
         ttr: how many seconds a worker has to process the job before it gets requeued
         """
+        
+        if appname and jobname:
+            try:
+                func = settings.BEANSTALK_JOB_NAME % {
+                    'app': appname,
+                    'job': jobname,
+                }
+            except AttributeError:
+                func = '%s.%s' % (appname, jobname)
+            
         self._beanstalk.use(func)
         self._beanstalk.put(str(arg), priority=priority, delay=delay, ttr=ttr)
     def close(self):

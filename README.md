@@ -42,6 +42,14 @@ functions:
     # %(job)s : job name
     BEANSTALK_JOB_NAME = '%(app)s.%(job)s'
 
+For example, if you have separate staging and production servers running 
+beanstalk jobs with the same name, you can create a separate namespace for each:
+
+    # in the settings.py for the staging server
+    BEANSTALK_JOB_NAME = 'staging.%(app)s.%(job)s'
+
+    # in the settings.py for the production server
+    BEANSTALK_JOB_NAME = 'production.%(app)s.%(job)s'
 
 Workers
 -------
@@ -79,13 +87,26 @@ function with it:
     client = BeanstalkClient()
     client.call('beanstalk_example.background_counting', '5')
 
+Alternatively, to use the settings.BEANSTALK\_JOB\_NAME pattern, `call` the
+function with explicit appname and jobname parameters:
+
+    client.call(appname='beanstalk_example', jobname='background_counting', arg='5')
+
 For a live example look at the `beanstalk_example` app, in the
 `management/commands/beanstalk_example_client.py` file. Arguments to `call` are
 
+    func:     the function name following the pattern `appname.jobname` or
+              the pattern specified by settings.BEANSTALK_JOB_NAME
+    arg:      the argument to pass to the beanstalk job
     priority: an integer number that specifies the priority. Jobs with a
               smaller priority get executed first
     delay:    how many seconds to wait before the job can be reserved
     ttr:      how many seconds a worker has to process the job before it gets requeued
+    appname:  if present with jobname, will be applied to the pattern specified
+              by settings.BEANSTALK_JOB_NAME to specify the function name. The
+              func argument will be ignored
+    jobname:  if present with appname, used to specify the function name
+
 
 
 Example App
