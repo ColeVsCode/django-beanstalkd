@@ -114,15 +114,14 @@ class Command(NoArgsCommand):
                 job = beanstalk.reserve()
                 job_name = job.stats()['tube']
                 if job_name in self.jobs:
-                    logger.debug("Calling %s with arg: %s" % (job_name, job.body))
+                    logger.debug("Calling %s" % job_name)
                     try:
                         self.jobs[job_name](job.body)
                     except Exception, e:
                         tp, value, tb = sys.exc_info()
-                        logger.error('Error while calling "%s" with arg "%s": '
+                        logger.error('Error while calling "%s": '
                             '%s' % (
                                 job_name,
-                                job.body,
                                 e,
                             )
                         )
